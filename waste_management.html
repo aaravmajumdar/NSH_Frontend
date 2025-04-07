@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Waste Management + Return Planning</title>
+    <!-- Link to a futuristic font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Orbitron&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            justify-items: center;
+            padding: 0;
+            padding-bottom: 80px;
+            background: #0e0e0e;
+            color: #e0e0e0;
+            overflow-y: scroll;
+            min-height: 100vh;
+        }
+        body::-webkit-scrollbar {
+            right: 70px;
+            width: 8px;
+        }
+
+        body::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        body::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 255, 0.5);
+            border-radius: 4px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+
+        .section {
+            border: 1px solid #00d1ff;
+            border-radius: 8px;
+            width: 70%;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: rgba(0, 209, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 209, 255, 0.3);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #00d1ff;
+        }
+
+        .info {
+            color: #a0a0a0;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            background: #00d1ff;
+            border: none;
+            border-radius: 4px;
+            color: #0e0e0e;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background: #00a0cc;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border: 1px solid #00d1ff;
+        }
+
+        th {
+            background: rgba(0, 209, 255, 0.2);
+        }
+
+        pre {
+            background: rgba(0, 209, 255, 0.15);
+            padding: 10px;
+            border-radius: 4px;
+        }
+        nav {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-top: 2px solid #00f7ff;
+            box-shadow: 0 -5px 20px rgba(0, 247, 255, 0.3);
+            z-index: 1000;
+        }
+        nav ul {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            margin: 0;
+            list-style: none;
+        }
+        nav a {
+            color: #00f7ff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 2px;
+            padding: 10px 20px;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        nav a::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00f7ff;
+            transition: width 0.3s ease;
+        }
+        nav a:hover::before {
+            width: 100%;
+        }
+        nav a:hover {
+            text-shadow: 0 0 10px #00f7ff;
+            background: rgba(0, 247, 255, 0.1);
+            border-radius: 20px;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes scan {
+            0% { transform: translateY(-50%); }
+            100% { transform: translateY(0); }
+        }
+        nav a i {
+            margin-right: 8px;
+            font-size: 1.2em;
+            vertical-align: middle;
+        }
+        nav ul li {
+            margin: 0 10px;
+        }
+        nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            border-radius: 25px;
+            background: rgba(0, 247, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html"><i class="fas fa-home"></i>Home</a></li>
+            <li><a href="about.html"><i class="fas fa-chart-line"></i>Placement</a></li>
+            <li><a href="item_search.html"><i class="fas fa-search"></i>Search</a></li>
+            <li><a href="rearrangement.html"><i class="fas fa-sync"></i>Rearrange</a></li>
+            <li><a href="waste_management.html"><i class="fas fa-recycle"></i>Waste</a></li>
+            <li><a href="simulation.html"><i class="fas fa-clock"></i>Time</a></li>
+        </ul>
+
+    </nav>
+    <header>
+        <h1>Waste Management &amp; Return Planning</h1>
+        <p class="info">Track and manage waste items along with cargo return process</p>
+    </header>
+
+    <!-- Section for Waste Item Tracking -->
+    <section class="section" id="waste-tracking">
+        <h2>Waste Item Tracker</h2>
+        <p>Track items that become waste (expired or finished) and automatically mark them for disposal.</p>
+        <!-- Table displaying waste items -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Status</th>
+                    <th style="text-align: center;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Sample row. To be replaced with dynamic content -->
+                <tr>
+                    <td>Item A</td>
+                    <td>Expired</td>
+                    <td style="text-align: center;"><button>Mark for Disposal</button>
+                        <button onclick="triggerUndocking()">Trigger Undocking</button>
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Section for Manifest and Space Cleanup -->
+    <section class="section" id="return-planning">
+        <h2>Return Planning &amp; Cleanup</h2>
+        <!-- Manifest output area -->
+        <div id="manifest">
+            <pre>// Manifest details</pre>
+        </div>
+    </section>
+
+    <script>
+        function triggerUndocking() {
+            // Suggest moving waste items and check weight limit (sample logic)
+            alert("Undocking triggered: Moving waste items, checking weight limit, and generating manifest.");
+
+            // Example: Update manifest text with futuristic style
+            document.getElementById('manifest').innerHTML = `
+                    <h3>Return Manifest</h3>
+                    <pre>
+- ITEM A: DISPOSED
+- ITEM B: DISPOSED
+- TOTAL WEIGHT: 350KG (OK)
+                    </pre>
+                `;
+        }
+    </script>
+</body>
+
+</html>

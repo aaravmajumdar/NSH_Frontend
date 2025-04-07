@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Gemini-Flash" content="Enable Gemini 2.0 Flash for all clients">
+    <link href="https://fonts.googleapis.com/css?family=Orbitron&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <title>Item Search</title>
+    <style>
+        body {
+            background: linear-gradient(45deg, #000000, #1a1a1a);
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0d1117;
+            color: #58a6ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            padding: 20px;
+            background: #161b22;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(88, 166, 255, 0.5);
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+            color: #58a6ff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        input[type="text"] {
+            /* width: 100%; */
+            padding: 10px;
+            border: 1px solid #30363d;
+            border-radius: 5px;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-size: 1em;
+            transition: width 0.3s ease;
+        }
+
+        button:active~input[type="text"] {
+            width: 100%;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #58a6ff, #1f6feb);
+            color: #fff;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, #1f6feb, #58a6ff);
+        }
+
+        .results,
+        .instructions,
+        .log {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #30363d;
+            border-radius: 5px;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            box-shadow: 0 0 10px rgba(88, 166, 255, 0.3);
+        }
+
+        .results h2,
+        .instructions h2,
+        .log h2 {
+            color: #58a6ff;
+        }
+
+        .results p,
+        .instructions p,
+        .log p {
+            font-size: 1em;
+        }
+
+        input:focus,
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(88, 166, 255, 0.7);
+        }
+
+        .container2 {
+            max-width: 600px;
+            padding: 20px;
+            margin-top: 20px;
+            margin-left: 80px;
+            display: none;
+        }
+
+        nav {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-top: 2px solid #00f7ff;
+            box-shadow: 0 -5px 20px rgba(0, 247, 255, 0.3);
+            z-index: 1000;
+        }
+
+        nav ul {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        nav a {
+            color: #00f7ff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 2px;
+            padding: 10px 20px;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00f7ff;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::before {
+            width: 100%;
+        }
+
+        nav a:hover {
+            text-shadow: 0 0 10px #00f7ff;
+            background: rgba(0, 247, 255, 0.1);
+            border-radius: 20px;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes scan {
+            0% {
+                transform: translateY(-50%);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        nav a i {
+            margin-right: 8px;
+            font-size: 1.2em;
+            vertical-align: middle;
+        }
+
+        nav ul li {
+            margin: 0 10px;
+        }
+
+        nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            border-radius: 25px;
+            background: rgba(0, 247, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Item Search</h1>
+        <form id="searchForm">
+            <div class="form-group">
+                <label for="itemName">Enter Item Name:</label>
+                <input type="text" id="itemName" name="itemName" placeholder="e.g., Medical Kit">
+            </div>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    <div class="container2">
+        <div class="results" id="results" style="display: none;">
+            <h2>Search Results</h2>
+            <p id="resultDetails">Module: [Module Name], Position: [Position]</p>
+        </div>
+
+        <div class="instructions" id="instructions" style="display: none;">
+            <h2>Retrieval Instructions</h2>
+            <p id="instructionDetails">[Instructions for retrieval]</p>
+        </div>
+
+        <div class="log" id="log" style="display: none;">
+            <h2>Action Log</h2>
+            <p id="logDetails">[Log details]</p>
+        </div>
+
+    </div>
+    < <!-- Updated navbar code -->
+        <nav>
+            <ul>
+                <li><a href="index.html"><i class="fa-solid fa-house"></i>Home</a></li>
+                <li><a href="about.html"><i class="fa-solid fa-chart-line"></i>Placement</a></li>
+                <li><a href="item_search.html"><i class="fa-solid fa-magnifying-glass"></i>Search</a></li>
+                <li><a href="rearrangement.html"><i class="fa-solid fa-rotate"></i>Rearrange</a></li>
+                <li><a href="waste_management.html"><i class="fa-solid fa-recycle"></i>Waste</a></li>
+                <li><a href="simulation.html"><i class="fa-regular fa-clock"></i>Time</a></li>
+            </ul>
+        </nav>
+
+        <script>
+            document.getElementById('searchForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                const itemName = document.getElementById('itemName').value;
+
+                document.getElementsByClassName('container2')[0].style.display = 'block'; // Make container visible
+
+                // Simulate search results
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('resultDetails').textContent = `Module: Alpha, Position: Shelf 3`;
+
+                // Simulate retrieval instructions
+                document.getElementById('instructions').style.display = 'block';
+                document.getElementById('instructionDetails').textContent = `Move items A and B to access the item.`;
+
+                // Simulate logging
+                document.getElementById('log').style.display = 'block';
+                document.getElementById('logDetails').textContent = `User: Astronaut1, Time: ${new Date().toLocaleString()}, Location: Module Alpha, Shelf 3`;
+            });
+        </script>
+</body>
+
+</html>

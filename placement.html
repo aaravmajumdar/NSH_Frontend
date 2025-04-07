@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placement Recommendations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .recommendation-panel {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .priority-high {
+            border-left: 5px solid #ff4444;
+        }
+        .priority-medium {
+            border-left: 5px solid #ffbb33;
+        }
+        .priority-low {
+            border-left: 5px solid #00C851;
+        }
+        .action-buttons {
+            margin-top: 10px;
+        }
+        button {
+            padding: 8px 15px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .primary-btn {
+            background-color: #4285f4;
+            color: white;
+        }
+        .secondary-btn {
+            background-color: #4285f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Placement Recommendations</h1>
+        
+        <div class="recommendation-panel priority-high">
+            <h3>New Stock Arrival</h3>
+            <form>
+                <label for="item-name">Item Name:</label>
+                <input type="text" id="item-name" name="item-name" required>
+                
+                <label for="quantity">Quantity:</label>
+                <input type="number" id="quantity" name="quantity" required>
+                
+                <label for="priority">Priority Level:</label>
+                <select id="priority" name="priority">
+                    <option value="high">High Priority</option>
+                    <option value="medium">Medium Priority</option>
+                    <option value="low">Low Priority</option>
+                </select>
+                
+                <button type="submit" class="primary-btn">Get Placement Recommendation</button>
+            </form>
+        </div>
+
+        <div class="recommendation-panel priority-medium">
+            <h3>Current Recommendations</h3>
+            <div id="recommendations">
+                <!-- Dynamic recommendations will be inserted here -->
+                <p>Recommended Location: Zone A-123</p>
+                <p>Space Status: Available</p>
+                <p>Alternative Actions:</p>
+                <ul>
+                    <li>Rearrange items in Zone A-122 to optimize space</li>
+                    <li>Move low-priority items from Zone A-123 to Zone C-101</li>
+                </ul>
+                <div class="action-buttons">
+                    <button class="primary-btn">Accept Recommendation</button>
+                    <button class="secondary-btn">Show Alternatives</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="recommendation-panel priority-low">
+            <h3>Space Optimization Suggestions</h3>
+            <ul>
+                <li>Current Space Utilization: 85%</li>
+                <li>Available High-Priority Zones: 3</li>
+                <li>Recommended Reorganizations: 2</li>
+            </ul>
+            <button class="primary-btn">View Detailed Report</button>
+        </div>
+    </div>
+</body>
+</html>
