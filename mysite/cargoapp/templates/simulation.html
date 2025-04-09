@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Orbitron&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Time Simulation - Futuristic</title>
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;;
+            margin: 0;
+            background: black;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow: hidden;
+            padding-bottom: 80px;
+            /* Add padding to account for navbar height */
+            box-sizing: border-box;
+        }
+
+        .container {
+            margin-top: 100px;
+            max-width: 1500px;
+            margin: 0px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            overflow-y: auto;
+            max-height: calc(100vh - 100px);
+            /* Adjust height accounting for navbar */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 255, 255, 0.5) rgba(0, 0, 0, 0.2);
+        }
+
+        .container::-webkit-scrollbar {
+            right: 70px;
+            width: 8px;
+        }
+
+        .container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .container::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 255, 0.5);
+            border-radius: 4px;
+        }
+
+        section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        h1,
+        h2,
+        h3 {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0;
+        }
+
+        label {
+            margin: 10px 0 4px;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            width: calc(100% - 10px);
+            padding: 10px;
+            margin-bottom: 15px;
+            margin-top: 10px;
+            margin-left: 5px;
+            border: none;
+            border-radius: 4px;
+            background: #1e1e2f;
+            color: #e0e0e0;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #00cec9, #0984e3);
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(9, 132, 227, 0.5);
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #0984e3, #00cec9);
+        }
+
+        .simulation-log {
+            margin-top: 20px;
+            border-top: 1px solid #444;
+            padding-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .simulation-log ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .simulation-log li {
+            padding: 5px;
+            border-bottom: 1px solid #333;
+        }
+
+        nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-top: 2px solid #00f7ff;
+            box-shadow: 0 -5px 20px rgba(0, 247, 255, 0.3);
+            z-index: 1000;
+        }
+
+        nav ul {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        nav a {
+            color: #00f7ff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 2px;
+            padding: 10px 20px;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00f7ff;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::before {
+            width: 100%;
+        }
+
+        nav a:hover {
+            text-shadow: 0 0 10px #00f7ff;
+            background: rgba(0, 247, 255, 0.1);
+            border-radius: 20px;
+        }
+
+        nav a i {
+            margin-right: 8px;
+            font-size: 1.2em;
+            vertical-align: middle;
+        }
+
+        nav ul li {
+            margin: 0 10px;
+        }
+
+        nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            border-radius: 25px;
+            background: rgba(0, 247, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <h1>Time Simulation </h1>
+
+        <!-- Next Day Simulation -->
+        <section id="next-day">
+            <h2>Next Day</h2>
+            <label for="dayItems">Items to use today (comma separated):</label>
+            <input type="text" id="dayItems" style="margin-top: 10px" placeholder="e.g., apple, banana, milk">
+            <button id="nextDayBtn">Simulate One Day</button>
+        </section>
+
+        <!-- Fast Forward Simulation -->
+        <section id="fast-forward">
+            <h2>Fast Forward X Days</h2>
+            <label for="fastForwardDays">Number of Days:</label>
+            <input type="number" id="fastForwardDays" min="1" value="1">
+            <label for="fastForwardItems">Items to use each day (comma separated):</label>
+            <input type="text" id="fastForwardItems" placeholder="e.g., bread, cheese">
+            <button id="fastForwardBtn">Simulate Multiple Days</button>
+        </section>
+
+        <!-- Simulation Log -->
+        <div class="simulation-log" id="simulationLog">
+            <h3>Simulation Log</h3>
+            <ul id="logList"></ul>
+        </div>
+    </div>
+
+    <script>
+        // Simulation state storage
+        let simulationDay = 0;
+
+        function addLog(message) {
+            const logList = document.getElementById('logList');
+            const li = document.createElement('li');
+            li.textContent = message;
+            logList.appendChild(li);
+        }
+
+        document.getElementById('nextDayBtn').addEventListener('click', () => {
+            simulationDay++;
+            const itemsInput = document.getElementById('dayItems').value;
+            const items = itemsInput ? itemsInput.split(',').map(item => item.trim()) : [];
+            // Simulation logic for a single day
+            addLog(`Day ${simulationDay}: Simulated day with items [${items.join(', ')}].`);
+        });
+
+        document.getElementById('fastForwardBtn').addEventListener('click', () => {
+            const days = parseInt(document.getElementById('fastForwardDays').value, 10);
+            const itemsInput = document.getElementById('fastForwardItems').value;
+            const items = itemsInput ? itemsInput.split(',').map(item => item.trim()) : [];
+            for (let i = 1; i <= days; i++) {
+                simulationDay++;
+                // Simulation logic for each day
+                addLog(`Day ${simulationDay}: Simulated day with items [${items.join(', ')}].`);
+            }
+        });
+    </script>
+</body>
+
+</html>

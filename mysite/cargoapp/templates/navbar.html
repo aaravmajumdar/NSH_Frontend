@@ -1,0 +1,13 @@
+{% block navbar %}
+<nav>
+    <ul>
+        <li><a href="/"><i class="fas fa-home"></i>Home</a></li>
+        <li><a href="placement.html"><i class="fas fa-chart-line"></i>Placement</a></li>
+        <li><a href="{% url 'search' %}"><i class="fas fa-search"></i>Search</a></li>
+        <li><a href="{% url 'rearrange' %}"><i class="fas fa-sync"></i>Rearrange</a></li>
+        <li><a href="{% url 'waste_management' %}"><i class="fas fa-recycle"></i>Waste</a></li>
+        <li><a href="{% url 'simulation' %}"><i class="fas fa-clock"></i>Time</a></li>
+        <li><a href="{% if user.is_authenticated %}{% url 'logout' %}{% else %}{% url 'login' %}{% endif %}"><i class="fas fa-user"></i>{% if user.is_authenticated %} {{ user.username }}{% else %}Login{% endif %}</a></li>
+    </ul>
+</nav>
+{% endblock %}

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rearrangement Recommendations (Space Management)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            background: #121212;
+            color: #e0e0e0;
+        }
+        header {
+            background: linear-gradient(45deg, #0ff, rgb(15, 19, 255));
+            color: #121212;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        .container {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 900px;
+            margin: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.8);
+        }
+        .upload-section, .recommendation-section, .plan-section {
+            margin-bottom: 30px;
+            border: 1px solid #333;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .upload-section input[type="file"] {
+            padding: 5px;
+            background: #333;
+            color: #e0e0e0;
+            border: none;
+            border-radius: 4px;
+        }
+        .recommendation-section ul, .plan-section ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            background: linear-gradient(45deg, #0ff, rgb(5, 93, 255));
+            color: #121212;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        /* Futuristic animation for sections */
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+            }
+        }
+        .upload-section, .recommendation-section, .plan-section {
+            animation: glow 2s infinite;
+        }
+        nav {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-top: 2px solid #00f7ff;
+            box-shadow: 0 -5px 20px rgba(0, 247, 255, 0.3);
+            z-index: 1000;
+        }
+        nav ul {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            margin: 0;
+            list-style: none;
+        }
+        nav a {
+            color: #00f7ff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 2px;
+            padding: 10px 20px;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        nav a::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00f7ff;
+            transition: width 0.3s ease;
+        }
+        nav a:hover::before {
+            width: 100%;
+        }
+        nav a:hover {
+            text-shadow: 0 0 10px #00f7ff;
+            background: rgba(0, 247, 255, 0.1);
+            border-radius: 20px;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes scan {
+            0% { transform: translateY(-50%); }
+            100% { transform: translateY(0); }
+        }
+        nav a i {
+            margin-right: 8px;
+            font-size: 1.2em;
+            vertical-align: middle;
+        }
+        nav ul li {
+            margin: 0 10px;
+        }
+        nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            border-radius: 25px;
+            background: rgba(0, 247, 255, 0.05);
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <header>
+        <h1>Rearrangement Recommendations (Space Management)</h1>
+    </header>
+    <div class="container">
+        <section class="upload-section">
+            <h2>Upload New Stock File</h2>
+            <p>Select your new stock file. If space is insufficient, recommendations will be generated automatically.</p>
+            <input type="file" id="stockFile" />
+            <button id="checkSpaceBtn">Check Space</button>
+        </section>
+
+        <section id="recommendationSection" class="recommendation-section hidden">
+            <h2>Relocation Suggestions</h2>
+            <p>Based on current space availability, consider relocating the following low-priority items:</p>
+            <ul id="recommendationList">
+                <!-- Recommendations will be dynamically added here -->
+            </ul>
+        </section>
+
+        <section id="planSection" class="plan-section hidden">
+            <h2>Step-by-Step Movement Plan</h2>
+            <p>Follow this plan to minimize time spent moving items:</p>
+            <ol id="movementPlan">
+                <!-- Movement plan steps will be dynamically added here -->
+            </ol>
+        </section>
+    </div>
+
+    <script>
+        // Sample recommendations and plan (in a real app, these would come from a backend)
+        const sampleRecommendations = [
+            "Relocate item A from shelf 3 to shelf 1",
+            "Relocate item B from section D to section B",
+            "Relocate item C from storage 2 to overflow area"
+        ];
+
+        const samplePlan = [
+            "Step 1: Identify low-priority items in the recommendation list.",
+            "Step 2: Schedule movement during off-peak hours.",
+            "Step 3: Ensure temporary storage for items being moved.",
+            "Step 4: Execute the movement plan in the order listed.",
+            "Step 5: Verify space availability after relocation."
+        ];
+
+        document.getElementById('checkSpaceBtn').addEventListener('click', function() {
+            // For demonstration we simulate a condition "insufficient space".
+            const hasInsufficientSpace = true;
+            
+            if (hasInsufficientSpace) {
+                // Show recommendations
+                const recSection = document.getElementById('recommendationSection');
+                const planSection = document.getElementById('planSection');
+
+                // Populate recommendation list
+                const recList = document.getElementById('recommendationList');
+                recList.innerHTML = "";
+                sampleRecommendations.forEach(function(rec) {
+                    const li = document.createElement('li');
+                    li.textContent = rec;
+                    recList.appendChild(li);
+                });
+
+                // Populate movement plan
+                const planList = document.getElementById('movementPlan');
+                planList.innerHTML = "";
+                samplePlan.forEach(function(step) {
+                    const li = document.createElement('li');
+                    li.textContent = step;
+                    planList.appendChild(li);
+                });
+
+                recSection.classList.remove('hidden');
+                planSection.classList.remove('hidden');
+            }
+            else {
+                // Hide recommendations if space is sufficient
+                document.getElementById('recommendationSection').classList.add('hidden');
+                document.getElementById('planSection').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
