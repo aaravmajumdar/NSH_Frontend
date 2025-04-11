@@ -1,28 +1,47 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Placement Recommendations</title>
+    <link href="https://fonts.googleapis.com/css?family=Orbitron&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding-bottom: 80px; /* Add padding to account for the navbar height */
         }
         .container {
             max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
+            background: rgba(255, 255, 255, 0.1);
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            color: #00ffff;
+            margin-bottom: 20px;
         }
         .recommendation-panel {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
         }
         .priority-high {
             border-left: 5px solid #ff4444;
@@ -33,32 +52,135 @@
         .priority-low {
             border-left: 5px solid #00C851;
         }
-        .action-buttons {
-            margin-top: 10px;
+        label, p, li {
+            font-size: 1rem;
+            color: #ffffff;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
         }
         button {
-            padding: 8px 15px;
+            padding: 10px 20px;
             margin-right: 10px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
         }
         .primary-btn {
-            background-color: #4285f4;
-            color: white;
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        .primary-btn:hover {
+            background: linear-gradient(45deg, #0072ff, #00c6ff);
         }
         .secondary-btn {
-            background-color: #4285f4;
+            background: linear-gradient(45deg, #ff6a00, #ee0979);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
         }
+        .secondary-btn:hover {
+            background: linear-gradient(45deg, #ee0979, #ff6a00);
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        ul li {
+            margin: 5px 0;
+        }
+        nav {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-top: 2px solid #00f7ff;
+            box-shadow: 0 -5px 20px rgba(0, 247, 255, 0.3);
+            z-index: 1000;
+        }
+        nav ul {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            margin: 0;
+            list-style: none;
+        }
+        nav a {
+            color: #00f7ff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 2px;
+            padding: 10px 20px;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        nav a::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00f7ff;
+            transition: width 0.3s ease;
+        }
+        nav a:hover::before {
+            width: 100%;
+        }
+        nav a:hover {
+            text-shadow: 0 0 10px #00f7ff;
+            background: rgba(0, 247, 255, 0.1);
+            border-radius: 20px;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes scan {
+            0% { transform: translateY(-50%); }
+            100% { transform: translateY(0); }
+        }
+        nav a i {
+            margin-right: 8px;
+            font-size: 1.2em;
+            vertical-align: middle;
+        }
+        nav ul li {
+            margin: 0 10px;
+        }
+        nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            border-radius: 25px;
+            background: rgba(0, 247, 255, 0.05);
+        }
+
     </style>
 </head>
 <body>
+    {% include 'navbar.html' %}
+
     <div class="container">
         <h1>Placement Recommendations</h1>
         
         <div class="recommendation-panel priority-high">
             <h3>New Stock Arrival</h3>
-            <form>
+            <form id="placement-form" method="post" action="{% url 'api_placement' %}">
+                {% csrf_token %}
                 <label for="item-name">Item Name:</label>
                 <input type="text" id="item-name" name="item-name" required>
                 
@@ -66,11 +188,7 @@
                 <input type="number" id="quantity" name="quantity" required>
                 
                 <label for="priority">Priority Level:</label>
-                <select id="priority" name="priority">
-                    <option value="high">High Priority</option>
-                    <option value="medium">Medium Priority</option>
-                    <option value="low">Low Priority</option>
-                </select>
+                <input type="number" id="priority" name="priority" required>
                 
                 <button type="submit" class="primary-btn">Get Placement Recommendation</button>
             </form>
@@ -79,17 +197,16 @@
         <div class="recommendation-panel priority-medium">
             <h3>Current Recommendations</h3>
             <div id="recommendations">
-                <!-- Dynamic recommendations will be inserted here -->
-                <p>Recommended Location: Zone A-123</p>
-                <p>Space Status: Available</p>
+                <p>Recommended Location: <span id="recommended-location">Zone A-123</span></p>
+                <p>Space Status: <span id="space-status">Available</span></p>
                 <p>Alternative Actions:</p>
-                <ul>
+                <ul id="alternative-actions">
                     <li>Rearrange items in Zone A-122 to optimize space</li>
                     <li>Move low-priority items from Zone A-123 to Zone C-101</li>
                 </ul>
                 <div class="action-buttons">
-                    <button class="primary-btn">Accept Recommendation</button>
-                    <button class="secondary-btn">Show Alternatives</button>
+                    <button class="primary-btn" id="accept-recommendation">Accept Recommendation</button>
+                    <button class="secondary-btn" id="show-alternatives">Show Alternatives</button>
                 </div>
             </div>
         </div>
@@ -97,12 +214,155 @@
         <div class="recommendation-panel priority-low">
             <h3>Space Optimization Suggestions</h3>
             <ul>
-                <li>Current Space Utilization: 85%</li>
-                <li>Available High-Priority Zones: 3</li>
-                <li>Recommended Reorganizations: 2</li>
+                <li>Current Space Utilization: <span id="space-utilization">85%</span></li>
+                <li>Available High-Priority Zones: <span id="available-high-priority-zones">3</span></li>
+                <li>Recommended Reorganizations: <span id="recommended-reorganizations">2</span></li>
             </ul>
-            <button class="primary-btn">View Detailed Report</button>
+            <button class="primary-btn" id="view-detailed-report">View Detailed Report</button>
         </div>
     </div>
+
+    <script>
+        'X-CSRFToken...'
+        document.addEventListener('DOMContentLoaded', function() {
+            const placementForm = document.getElementById('placement-form');
+            const recommendationsDiv = document.getElementById('recommendations');
+            const recommendedLocationSpan = document.getElementById('recommended-location');
+            const spaceStatusSpan = document.getElementById('space-status');
+            const alternativeActionsUl = document.getElementById('alternative-actions');
+            const spaceUtilizationSpan = document.getElementById('space-utilization');
+            const availableHighPriorityZonesSpan = document.getElementById('available-high-priority-zones');
+            const recommendedReorganizationsSpan = document.getElementById('recommended-reorganizations');
+
+            // Function to handle form submission
+            placementForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                console.log("A - Form submitted");
+
+                // Get form data
+                const itemName = document.getElementById('item-name');
+                const quantity = document.getElementById('quantity');
+                const priority = document.getElementById('priority');
+                
+                console.log("B - Input elements fetched");
+            
+              const itemNameValue = itemName.value;
+              const quantityValue = quantity.value;
+              const priorityValue = priority.value;
+                console.log("C - Form data:", itemNameValue, quantityValue, priorityValue);
+
+                // Construct item and container details
+                const itemDetails = {
+                    itemId: 'item-' + Date.now(), // generating a unique item id
+                    name: itemNameValue,
+                    width: 10, // Placeholder width
+                    depth: 5, // Placeholder depth
+                    height: 5, // Placeholder height
+                    priority: priorityValue === 'high' ? 90 : priorityValue === 'medium' ? 50 : 20,
+                    preferredZone: priorityValue === 'high' ? 'A' : priorityValue === 'medium' ? 'B' : 'C'
+                };
+
+                const containerDetails = [
+                  {
+                      "containerId": "A-123",
+                      "zone": "A",
+                      "width": 100,
+                      "depth": 85,
+                      "height": 200
+                  },
+                  {
+                      "containerId": "A-122",
+                      "zone": "A",
+                      "width": 100,
+                      "depth": 85,
+                      "height": 200
+                  },
+                  {
+                      "containerId": "B-101",
+                      "zone": "B",
+                      "width": 50,
+                      "depth": 85,
+                      "height": 200
+                  },
+                  {
+                      "containerId": "C-101",
+                      "zone": "C",
+                      "width": 200,
+                      "depth": 85,
+                      "height": 200
+                  }
+                ];
+
+                // Prepare data to send to the API
+                const data = {
+                    items: [itemDetails], // API expects a list of items
+                    containers: containerDetails
+                };
+
+                // Send data to API endpoint using Fetch API
+                try {
+                    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    const response = await fetch(placementForm.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({
+                            'item_name': itemNameValue,
+                            'quantity': quantityValue,
+                            'priority': priorityValue,
+                            'items': [itemDetails],
+                            'containers': containerDetails
+                        })
+                    });
+
+                    // Check if response is okay
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}, ${await response.text()}`);
+                    }
+
+                    // Parse the response JSON
+                    const result = await response.json();
+
+                    // Update the recommendation display
+                    if (result.placements && result.placements.length > 0) {
+                        const placement = result.placements[0];
+                        recommendedLocationSpan.textContent = placement.containerId;
+                        spaceStatusSpan.textContent = "Available";
+
+                        alternativeActionsUl.innerHTML = '';
+                        alternativeActionsUl.appendChild(document.createElement('li')).textContent = "Reorganize items to optimize space";
+
+                        spaceUtilizationSpan.textContent = "85%";
+                        availableHighPriorityZonesSpan.textContent = "3";
+                        recommendedReorganizationsSpan.textContent = "2";
+
+                        recommendationsDiv.style.display = 'block';
+                    } else {
+                        recommendedLocationSpan.textContent = "No placement found.";
+                        spaceStatusSpan.textContent = "N/A";
+                        recommendationsDiv.style.display = 'block';
+                    }
+
+                } catch (error) {
+                    console.error('There was a problem with the fetch operation:', error);
+                    recommendedLocationSpan.textContent = "Error fetching recommendation.";
+                    spaceStatusSpan.textContent = "N/A";
+                    recommendationsDiv.style.display = 'block';
+                }
+            });
+
+            document.getElementById('accept-recommendation').addEventListener('click', function() {
+                alert('Recommendation accepted!');
+            });
+            document.getElementById('show-alternatives').addEventListener('click', function() {
+                alert('Recommendation alternatives!');
+            });
+            document.getElementById('view-detailed-report').addEventListener('click', function() {
+                alert('Showing detailed report!');
+            });
+        });
+    </script>
 </body>
 </html>

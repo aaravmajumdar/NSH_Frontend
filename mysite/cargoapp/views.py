@@ -20,6 +20,8 @@ from django.template import loader
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth import logout
+from django.db.models import Sum
+from typing import Dict, List
 
 # Initialize services
 placement_service = PlacementService()
@@ -54,20 +56,18 @@ def api_placement(request):
         return JsonResponse({"success": False, "message": str(e)}, status=500)
 
 # Search APIs
+@csrf_exempt
 def api_search(request):
-    """API endpoint for item search"""
-    if request.method != 'GET':
+    if request.method == 'GET':
+        item_name = request.GET.get('itemName')
+        
+        if not item_name:
+            return JsonResponse({"success": False, "message": "Must provide itemName"}, status=400)
+        
+        result = search_service.search_item(item_name=item_name)
+        return JsonResponse(result)
+    else:
         return JsonResponse({"success": False, "message": "Method not allowed"}, status=405)
-    
-    item_id = request.GET.get('itemId')
-    item_name = request.GET.get('itemName')
-    user_id = request.GET.get('userId')
-    
-    if not item_id and not item_name:
-        return JsonResponse({"success": False, "message": "Must provide either itemId or itemName"}, status=400)
-    
-    result = search_service.search_item(item_id, item_name, user_id)
-    return JsonResponse(result)
 
 @csrf_exempt
 def api_retrieve(request):
@@ -218,154 +218,52 @@ def api_simulate_day(request):
     
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)}, status=500)
+    
+def get_container_utilization(self):
+        """
+        Calculates the container's utilization.
+        Returns:
+            float: Percentage of utilization (0-100).
+        """
+        total_volume = self.width * self.depth * self.height
+        used_volume = 0
+        for item in self.items.all():  # Iterate over related items
+            used_volume += item.width * item.depth * item.height
+        
+        if total_volume == 0:
+            return 0  # Avoid division by zero
+        
+        return (used_volume / total_volume) * 100
 
-# Import/Export APIs
-@csrf_exempt
-def api_import_items(request):
-    """API endpoint to import items from CSV"""
-    if request.method != 'POST':
-        return JsonResponse({"success": False, "message": "Method not allowed"}, status=405)
-    
-    try:
-        csv_file = request.FILES.get('file')
-        if not csv_file:
-            return JsonResponse({"success": False, "message": "No file uploaded"}, status=400)
         
-        # Read CSV
-        df = pd.read_csv(csv_file)
+def can_fit_item(self, item_width, item_depth, item_height):
+        """
+        Checks if an item of given dimensions can fit inside the container.
+        Parameters:
+            item_width (float): Width of the item.
+            item_depth (float): Depth of the item.
+            item_height (float): Height of the item.
+        Returns:
+            bool: True if the item fits, False otherwise.
+        """
+        available_width = self.width - (self.items.aggregate(Sum('width'))['width__sum'] or 0)
+        available_depth = self.depth - (self.items.aggregate(Sum('depth'))['depth__sum'] or 0)
+        available_height = self.height - (self.items.aggregate(Sum('height'))['height__sum'] or 0)
         
-        # Process import
-        items_imported = 0
-        errors = []
-        
-        for index, row in df.iterrows():
-            try:
-                # Check if item already exists
-                if Item.objects.filter(item_id=row['Item ID']).exists():
-                    item = Item.objects.get(item_id=row['Item ID'])
-                else:
-                    item = Item(item_id=row['Item ID'])
-                
-                # Get preferred zone if specified
-                preferred_zone = None
-                if 'Preferred Zone' in row and row['Preferred Zone']:
-                    zone_name = row['Preferred Zone']
-                    preferred_zone, _ = Zone.objects.get_or_create(name=zone_name)
-                
-                # Update item fields
-                item.name = row['Name']
-                item.width = row['Width (cm)']
-                item.depth = row['Depth (cm)']
-                item.height = row['Height (cm)']
-                item.mass = row['Mass (kg)']
-                item.priority = row['Priority (1-100)']
-                
-                # Handle expiry date
-                if 'Expiry Date' in row and row['Expiry Date'] and row['Expiry Date'].lower() != 'n/a':
-                    item.expiry_date = datetime.fromisoformat(row['Expiry Date'])
-                
-                # Handle usage limit
-                if 'Usage Limit' in row and row['Usage Limit'] and row['Usage Limit'].lower() != 'n/a':
-                    item.usage_limit = int(row['Usage Limit'])
-                
-                item.preferred_zone = preferred_zone
-                item.save()
-                
-                items_imported += 1
-                
-            except Exception as e:
-                errors.append({"row": index + 2, "message": str(e)})
-        
-        return JsonResponse({
-            "success": True,
-            "itemsImported": items_imported,
-            "errors": errors
-        })
-    
-    except Exception as e:
-        return JsonResponse({"success": False, "message": str(e)}, status=500)
+        return item_width <= available_width and item_depth <= available_depth and item_height <= available_height
 
-@csrf_exempt
-def api_import_containers(request):
-    """API endpoint to import containers from CSV"""
-    if request.method != 'POST':
-        return JsonResponse({"success": False, "message": "Method not allowed"}, status=405)
-    
-    try:
-        csv_file = request.FILES.get('file')
-        if not csv_file:
-            return JsonResponse({"success": False, "message": "No file uploaded"}, status=400)
+def has_capacity_for_item(self, item):
+        """
+        Verifies if container has enough volume to accept the item.
+        Args:
+            item (Item): the Item instance for which the space should be checked
+        Returns:
+            bool: if True, there's enough space for item, otherwise False
+        """
         
-        # Read CSV
-        df = pd.read_csv(csv_file)
-        
-        # Process import
-        containers_imported = 0
-        errors = []
-        
-        for index, row in df.iterrows():
-            try:
-                # Check if container already exists
-                if Container.objects.filter(container_id=row['Container ID']).exists():
-                    container = Container.objects.get(container_id=row['Container ID'])
-                else:
-                    container = Container(container_id=row['Container ID'])
-                
-                # Get or create zone
-                zone_name = row['Zone']
-                zone, _ = Zone.objects.get_or_create(name=zone_name)
-                
-                # Update container fields
-                container.zone = zone
-                container.width = row['Width(cm)']
-                container.depth = row['Depth(cm)']
-                container.height = row['Height(height)']
-                container.save()
-                
-                containers_imported += 1
-                
-            except Exception as e:
-                errors.append({"row": index + 2, "message": str(e)})
-        
-        return JsonResponse({
-            "success": True,
-            "containersImported": containers_imported,
-            "errors": errors
-        })
-    
-    except Exception as e:
-        return JsonResponse({"success": False, "message": str(e)}, status=500)
+        available_volume = self.available_volume
+        item_volume = item.volume
 
-def api_export_arrangement(request):
-    """API endpoint to export current arrangement to CSV"""
-    if request.method != 'GET':
-        return JsonResponse({"success": False, "message": "Method not allowed"}, status=405)
-    
-    try:
-        # Get all placed items
-        items = Item.objects.filter(container__isnull=False)
-        
-        # Create CSV data
-        csv_data = StringIO()
-        writer = csv.writer(csv_data)
-        writer.writerow(['Item ID', 'Container ID', 'Coordinates (W1,D1,H1),(W2,D2,H2)'])
-        
-        for item in items:
-            position = item.get_position()
-            if position:
-                start = position['startCoordinates']
-                end = position['endCoordinates']
-                coords = f"({start['width']},{start['depth']},{start['height']}),({end['width']},{end['depth']},{end['height']})"
-                writer.writerow([item.item_id, item.container.container_id, coords])
-        
-        # Create response
-        response = HttpResponse(csv_data.getvalue(), content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="arrangement.csv"'
-        
-        return response
-    
-    except Exception as e:
-        return JsonResponse({"success": False, "message": str(e)}, status=500)
 
 def home(response):
     return render(response, "index.html", {})
@@ -381,6 +279,9 @@ def simulation(response):
 
 def waste_management(response):
         return render(response, "waste_management.html", {})
+
+def placement(response):
+        return render(response, "placement.html", {})
 
 def login_form(request):
         if request.method == 'POST':

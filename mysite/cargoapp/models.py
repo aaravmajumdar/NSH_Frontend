@@ -98,6 +98,8 @@ class Item(models.Model):
                 }
             }
         return None
+    
+
 
 class RetrievalLog(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)

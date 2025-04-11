@@ -26,11 +26,14 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.home, name="index"), 
     path("item-search/", views.search, name="search"), 
+    path('api/search/', views.api_search, name='api_search'),
+    path('api/placement/', views.api_placement, name='api_placement'),
     path("item-rearrange/", views.rearrange, name="rearrange"), 
     path("login", views.login_form, name="login"), 
     path("logout", views.logout_view, name="logout"), 
     path("simulate-time", views.simulation, name="simulation"), 
     path("waste-management", views.waste_management, name="waste_management"), 
+    path("placement", views.placement, name="placement"), 
 ]
 
 if settings.DEBUG:

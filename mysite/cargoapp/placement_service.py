@@ -186,3 +186,41 @@ class PlacementService:
             item.position_depth = placement['position']['startCoordinates']['depth']
             item.position_height = placement['position']['startCoordinates']['height']
             item.save()
+
+    def _find_container_in_preferred_zone(self, item: Dict, containers: List[Dict]) -> Dict:
+        """Find suitable container in preferred zone"""
+        preferred_zone = item.get('preferredZone')
+        if not preferred_zone:
+            return None
+        # Filter containers by preferred zone
+        zone_containers = [c for c in containers if c['zone'] == preferred_zone]
+        # Find container with enough space
+        item_volume = item['width'] * item['depth'] * item['height']
+        for container in zone_containers:
+            # Check if container has enough space
+            #if self._can_fit_item(item, container):
+            #Check container capacity for item by using a function declared in models.
+            related_containers = Container.objects.get(container_id=container['containerId'])
+            itemModel = Item()
+            itemModel.width = item["width"]
+            itemModel.depth = item["depth"]
+            itemModel.height = item["height"]
+            if related_containers.has_capacity_for_item(itemModel):
+                return container
+        return None
+
+    def _find_container_in_any_zone(self, item: Dict, containers: List[Dict]) -> Dict:
+        """Find any container with enough space"""
+        item_volume = item['width'] * item['depth'] * item['height']
+        for container in containers:
+            #if self._can_fit_item(item, container):
+            #Check container capacity for item by using a function declared in models.
+            related_containers = Container.objects.get(container_id=container['containerId'])
+            itemModel = Item()
+            itemModel.width = item["width"]
+            itemModel.depth = item["depth"]
+            itemModel.height = item["height"]
+            if related_containers.has_capacity_for_item(itemModel):
+                return container
+        return None
+

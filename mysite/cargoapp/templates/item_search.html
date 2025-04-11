@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -62,7 +63,8 @@
         }
 
         input[type="text"] {
-            /* width: 100%; */
+            width: 90%;
+            margin-bottom: 10px;
             padding: 10px;
             border: 1px solid #30363d;
             border-radius: 5px;
@@ -225,43 +227,41 @@
             border-radius: 25px;
             background: rgba(0, 247, 255, 0.05);
         }
+
+        #searchResults.show {
+            display: block !important;
+        }
+        .card{
+            display: flex;
+            gap: 20px
+            /* flex-direction: column; */
+        }
     </style>
 </head>
 
 <body>
-
     {% include 'navbar.html' %}
 
     <div class="futuristic-cursor" id="futuristicCursor"></div>
     <div class="container">
-        <h1>Item Search</h1>
-        <form id="searchForm">
+        <div class="card">
+            
             <div class="form-group">
-                <label for="itemName">Enter Item Name:</label>
-                <input type="text" id="itemName" name="itemName" placeholder="e.g., Medical Kit">
+                <h2>Item Search</h2>
+                <label for="searchItemName">Item Name:</label>
+                <input type="text" id="searchItemName" class="form-control" required
+                    placeholder="Enter the item name ">
+                <button type="button" id="searchButton" class="btn primary-btn">Search</button>
             </div>
-            <button type="submit">Search</button>
-        </form>
-        <p id="errorMessage" style="color: red; display: none;">Please enter the item name before searching.</p>
+
+            <div id="searchResults" class="results" style="display: none;">
+                <h2>Search Results:</h2>
+                <div id="itemDetails"></div>
+                <div id="retrievalSteps"></div>
+                <div id="logDetails"></div>
+            </div>
+        </div>
     </div>
-    <div class="container2">
-        <div class="results" id="results" style="display: none;">
-            <h2>Search Results</h2>
-            <p id="resultDetails">Module: [Module Name], Position: [Position]</p>
-        </div>
-
-        <div class="instructions" id="instructions" style="display: none;">
-            <h2>Retrieval Instructions</h2>
-            <p id="instructionDetails">[Instructions for retrieval]</p>
-        </div>
-
-        <div class="log" id="log" style="display: none;">
-            <h2>Action Log</h2>
-            <p id="logDetails">[Log details]</p>
-        </div>
-
-    </div>
-
 
     <script>
         const cursor = document.getElementById('futuristicCursor');
@@ -270,30 +270,79 @@
             cursor.style.left = e.clientX + 'px';
             cursor.style.top = e.clientY + 'px';
         });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchButton = document.getElementById('searchButton');
+            const searchItemNameInput = document.getElementById('searchItemName');
+            const searchResultsDiv = document.getElementById('searchResults');
+            const itemDetailsDiv = document.getElementById('itemDetails');
+            const retrievalStepsDiv = document.getElementById('retrievalSteps');
+            const logDetailsDiv = document.getElementById('logDetails');
 
-        document.getElementById('searchForm').addEventListener('submit', function (event) {
-            const itemName = document.getElementById('itemName').value.trim();
-            if (!itemName) {
-                event.preventDefault();
-                document.getElementById('errorMessage').style.display = 'block';
-            } else {
-                document.getElementById('errorMessage').style.display = 'none';
-                event.preventDefault();
-                const itemName = document.getElementById('itemName').value;
+            searchButton.addEventListener('click', function () {
+                const itemName = searchItemNameInput.value.trim();
 
-                document.getElementsByClassName('container2')[0].style.display = 'block'; // Make container visible
+                fetch(`/api/search/?itemName=${encodeURIComponent(itemName)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Clear existing content
+                        itemDetailsDiv.innerHTML = '';
+                        retrievalStepsDiv.innerHTML = '';
+                        logDetailsDiv.innerHTML = '';
+                        searchResultsDiv.classList.remove('show');
 
-                // Simulate search results
-                document.getElementById('results').style.display = 'block';
-                document.getElementById('resultDetails').textContent = `Module: ${itemName}, Position: Shelf 3`;
+                        if (data.success) {
+                            if (data.found && data.item) {
+                                displayItemDetails(data.item);
+                                if (data.retrievalSteps && data.retrievalSteps.length > 0) {
+                                    displayRetrievalSteps(data.retrievalSteps);
+                                } else {
+                                    logDetailsDiv.innerHTML = `<p>No specific retrieval steps needed.</p>`;
+                                }
+                                searchResultsDiv.classList.add('show');
+                            } else {
+                                logDetailsDiv.innerHTML = `<p>No item found with the name "${itemName}".</p>`;
+                                searchResultsDiv.classList.add('show');
+                            }
+                        } else {
+                            logDetailsDiv.innerHTML = `<p>Error searching for item: ${data.message || 'Unknown error'}</p>`;
+                            searchResultsDiv.classList.add('show');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                        logDetailsDiv.innerHTML = `<p>Fetch error: ${error.message}</p>`;
+                        searchResultsDiv.classList.add('show');
+                    });
+            });
 
-                // Simulate retrieval instructions
-                document.getElementById('instructions').style.display = 'block';
-                document.getElementById('instructionDetails').textContent = `Move items A and B to access the item.`;
+            function displayItemDetails(item) {
+                itemDetailsDiv.innerHTML = `
+                    <h2>Item Details</h2>
+                    <p><strong>Module:</strong> ${item.zone || 'N/A'}</p>
+                    <p><strong>Position:</strong> ${item.containerId || 'N/A'} - ${item.position ? item.position.startCoordinates.width + ',' + item.position.startCoordinates.depth + ',' + item.position.startCoordinates.height : 'N/A'}</p>
+                    `;
+            }
 
-                // Simulate logging
-                document.getElementById('log').style.display = 'block';
-                document.getElementById('logDetails').textContent = `User: Astronaut1, Time: ${new Date().toLocaleString()}, Location: Module Alpha, Shelf 3`;
+            function displayRetrievalSteps(steps) {
+                let stepsHtml = '<h2>Retrieval Steps</h2><ul>';
+                steps.forEach((step, index) => {
+                    stepsHtml += `<li>Step ${index + 1}: ${step.action} - ${step.itemName}</li>`;
+                });
+                stepsHtml += '</ul>';
+                retrievalStepsDiv.innerHTML = stepsHtml;
             }
         });
     </script>
